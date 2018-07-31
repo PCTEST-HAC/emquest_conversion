@@ -137,24 +137,17 @@ class ConversionFrame(wx.Frame):
 
     def save(self, e):
         """ Select directory to save converted files. """
-        dlg = wx.DirDialog(self, "Select directory to save converted files", style=wx.DD_DIR_MUST_EXIST)
-        #dlg = mdd.MultiDirDialog(self, "Select directory to save converted files",
-        #                         defaultPath='H:\Transfer-SAR-MD\Chang\emquest',
-        #                         agwStyle=mdd.DD_DIR_MUST_EXIST | mdd.DD_NEW_DIR_BUTTON)
-        if dlg.ShowModal() == wx.ID_OK:
-            self.savetxt.Clear()
-            self.savetxt.WriteText(dlg.GetPath())
-        dlg.Destroy()
+        with wx.DirDialog(self, "Select directory to save converted files", style=wx.DD_DIR_MUST_EXIST) as dlg:
+            if dlg.ShowModal() == wx.ID_OK:
+                self.savetxt.Clear()
+                self.savetxt.WriteText(dlg.GetPath())
 
     def SelectTemplateFile(self, e):
     #    """ Select EMQuest conversion file. """
-        dlg = wx.FileDialog(self, "Select EMQuest conversion file",
-                            #defaultPath='H:\Transfer-SAR-MD\Chang\emquest',
-                            style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
-        if dlg.ShowModal() == wx.ID_OK:
-            self.templatetxt.Clear()
-            self.templatetxt.SetValue(dlg.GetPath())
-        dlg.Destroy()
+        with wx.FileDialog(self, "Select EMQuest conversion file", style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as dlg:
+            if dlg.ShowModal() == wx.ID_OK:
+                self.templatetxt.Clear()
+                self.templatetxt.SetValue(dlg.GetPath())
 
     def onSingleSelection(self, e):
         self.topselect = (e.GetRow(), e.GetCol())
@@ -181,30 +174,28 @@ class ConversionFrame(wx.Frame):
         print("Coords: " + str(self.topselect) + " " + str(self.bottomselect))
 
     def add(self, e):
-        dlg = wx.FileDialog(self, "Select EMQuest conversion file(s)", defaultDir='H:\Transfer-SAR-MD\Chang\emquest',
+        with wx.FileDialog(self, "Select EMQuest conversion file(s)", defaultDir='H:\Transfer-SAR-MD\Chang\emquest',
                             style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST | wx.FD_MULTIPLE,
-                            wildcard="CSV files (.csv)|*.csv")
-        if dlg.ShowModal() == wx.ID_OK:
-            for path in dlg.GetPaths():
-                if path not in self.dirlist:
-                    self.dirlist.append(path)
-        dlg.Destroy()
+                            wildcard="CSV files (.csv)|*.csv") as dlg:
+            if dlg.ShowModal() == wx.ID_OK:
+                for path in dlg.GetPaths():
+                    if path not in self.dirlist:
+                        self.dirlist.append(path)
         self.populatedirlist()
 
     def add_folder(self, e):
         # TODO: Change to single files instead of directories
         """ Select directory/ies to open. """
-        dlg = mdd.MultiDirDialog(self, "Choose a directory/directories to open",
+        with mdd.MultiDirDialog(self, "Choose a directory/directories to open",
                                  defaultPath='H:\Transfer-SAR-MD\Chang\emquest',
-                                 agwStyle=mdd.DD_MULTIPLE | mdd.DD_DIR_MUST_EXIST)
-        if dlg.ShowModal() == wx.ID_OK:
-            for filedir in dlg.GetPaths():
-                drive = filedir.split(':')[0][-1] + ':'
-                folderspath = filedir.split(':')[1]
-                path = drive + folderspath[folderspath.find('\\'):]
-                if path not in self.dirlist:
-                    self.dirlist.append(path)
-        dlg.Destroy()
+                                 agwStyle=mdd.DD_MULTIPLE | mdd.DD_DIR_MUST_EXIST) as dlg:
+            if dlg.ShowModal() == wx.ID_OK:
+                for filedir in dlg.GetPaths():
+                    drive = filedir.split(':')[0][-1] + ':'
+                    folderspath = filedir.split(':')[1]
+                    path = drive + folderspath[folderspath.find('\\'):]
+                    if path not in self.dirlist:
+                        self.dirlist.append(path)
         self.populatedirlist()
 
     def remove(self, e):
@@ -230,16 +221,14 @@ class ConversionFrame(wx.Frame):
 
     def startconversion(self, e):
         if self.savetxt.GetValue() == '':
-            dlg = wx.MessageDialog(self, "No save directory selected.\nPlease select a directory on the top left.",
-                                   style=wx.OK | wx.ICON_WARNING | wx.CENTER)
-            dlg.ShowModal()
-            dlg.Destroy()
+            with wx.MessageDialog(self, "No save directory selected.\nPlease select a directory on the top left.",
+                                   style=wx.OK | wx.ICON_WARNING | wx.CENTER) as dlg:
+                dlg.ShowModal()
             return
         elif not self.dirlist:
-            dlg = wx.MessageDialog(self, "No files selected.\nPlease select file(s) to convert.",
-                                   style=wx.OK | wx.ICON_WARNING | wx.CENTER)
-            dlg.ShowModal()
-            dlg.Destroy()
+            with wx.MessageDialog(self, "No files selected.\nPlease select file(s) to convert.",
+                                   style=wx.OK | wx.ICON_WARNING | wx.CENTER) as dlg:
+                dlg.ShowModal()
             return
         self.disablegui()
         threading.Thread(target=self.runconversion, args=(e,)).start()
@@ -248,10 +237,9 @@ class ConversionFrame(wx.Frame):
         self.success = []
         self.failure = []
         if len(self.dirlist) <= 0:
-            dlg = wx.MessageDialog(self, "No files selected.\nPlease add directories to the list on the right.",
-                                   style=wx.OK | wx.ICON_ERROR | wx.CENTER)
-            dlg.ShowModal()
-            dlg.Destroy()
+            with wx.MessageDialog(self, "No files selected.\nPlease add directories to the list on the right.",
+                                   style=wx.OK | wx.ICON_ERROR | wx.CENTER) as dlg:
+                dlg.ShowModal()
             return
         for file in self.dirlist:
             lteband = file.split('_')[1].split(' ')[0]
@@ -327,19 +315,19 @@ class ConversionFrame(wx.Frame):
                 print('Output transcription for ' + file + ' complete. Power values added to ' + dstfile)
         endmsg = "Conversions completed.\n"
         endmsg += "Files converted successfully:\n"
-        for file in self.success:
-            endmsg += file + "\n"
+        if self.success:
+            for file in self.success:
+                endmsg += file + "\n"
+        else:
+            endmsg += "None.\n"
         endmsg += "\nFiles converted unsuccessfully:\n"
-        for file in self.failure:
-            endmsg += file + "\n"
-        #print("Files converted successfully:")
-        #print(self.success)
-        #print()
-        #print("Files converted unsuccessfully:")
-        #print(self.failure)
-        dlg = wx.MessageDialog(self, endmsg, style=wx.ICON_INFORMATION | wx.OK | wx.CENTER)
-        dlg.ShowModal()
-        dlg.Destroy()
+        if self.failure:
+            for file in self.failure:
+                endmsg += file + "\n"
+        else:
+            endmsg += "None.\n"
+        with wx.MessageDialog(self, endmsg, style=wx.ICON_INFORMATION | wx.OK | wx.CENTER) as dlg:
+            dlg.ShowModal()
         self.enablegui()
 
     def runconversion_folder(self, e):
@@ -445,10 +433,10 @@ class ConversionFrame(wx.Frame):
         self.runbutton.Enable(True)
 
     def showcheckpoint(self, dstfilepath):
-        dlg = wx.MessageBox("'" + self.lteband + "'" + " conversion complete.\nCheck power excel sheet?",
-                            "Band Checkpoint.", wx.YES_NO | wx.ICON_INFORMATION)
-        if dlg == wx.YES:
-            os.startfile(dstfilepath)
+        with wx.MessageBox("'" + self.lteband + "'" + " conversion complete.\nCheck power excel sheet?",
+                            "Band Checkpoint.", wx.YES_NO | wx.ICON_INFORMATION) as dlg:
+            if dlg == wx.YES:
+                os.startfile(dstfilepath)
 
     def populatedirlist(self):
         self.dirgrid.ClearGrid()
@@ -469,9 +457,8 @@ class ConversionFrame(wx.Frame):
         :param errmsg: String error message to show in the message dialog.
         :return: Nothing
         """
-        dlg = wx.MessageDialog(self, errmsg, style=wx.OK | wx.ICON_ERROR | wx.CENTER)
-        dlg.ShowModal()
-        dlg.Destroy()
+        with wx.MessageDialog(self, errmsg, style=wx.OK | wx.ICON_ERROR | wx.CENTER) as dlg:
+            dlg.ShowModal()
 
 
 conversionProgram = wx.App(False)

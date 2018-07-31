@@ -14,8 +14,8 @@
       <file leaf-file-name="test.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/venv/test.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="290">
-              <caret line="324" column="72" selection-start-line="324" selection-start-column="72" selection-end-line="324" selection-end-column="72" />
+            <state relative-caret-position="307">
+              <caret line="327" column="31" selection-start-line="327" selection-start-column="31" selection-end-line="327" selection-end-column="31" />
               <folding>
                 <element signature="e#0#10#0" expanded="true" />
                 <element signature="e#14757#18683#0" />
@@ -35,7 +35,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>remove</find>
       <find>lteband</find>
       <find>dstfile</find>
       <find>self</find>
@@ -65,6 +64,7 @@
       <find>split(':</find>
       <find>split(</find>
       <find>self.dirlist</find>
+      <find>dlg</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -330,8 +330,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/venv/test.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="290">
-          <caret line="324" column="72" selection-start-line="324" selection-start-column="72" selection-end-line="324" selection-end-column="72" />
+        <state relative-caret-position="307">
+          <caret line="327" column="31" selection-start-line="327" selection-start-column="31" selection-end-line="327" selection-end-column="31" />
           <folding>
             <element signature="e#0#10#0" expanded="true" />
             <element signature="e#14757#18683#0" />
