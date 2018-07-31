@@ -322,7 +322,7 @@ class ConversionFrame(wx.Frame):
                         startrow = 28
                 df.to_excel(xlswriter, sheet_name=sheet_name, header=None, index=False, startcol=startcol,
                             startrow=startrow)
-                xlswriter.save()
+                xlswriter.save()  # Save the changes onto the excel file
                 self.success.append(file)  # File successfully added - add to list to display at the end
                 print('Output transcription for ' + file + ' complete. Power values added to ' + dstfile)
         endmsg = "Conversions completed.\n"
