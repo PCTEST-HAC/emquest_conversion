@@ -42,7 +42,7 @@ The following packages are required to run the program (are either included with
 
 *Note: Alternatively, you can add the packages in the **Project Interpreter** section of the project settings in PyCharm. However, this must be done after the project has been opened and the project interpreter has been selected, which will be done in the next few steps.*
 
-4.	Open PyCharm and open the project – select the **hac** folder in the “Open File or Project” window.
+4.	Open PyCharm and open the project – select the **emquest** folder in the “Open File or Project” window.
 
   ![open project](venv/docs/openproject.PNG)
   
