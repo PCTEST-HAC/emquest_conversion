@@ -9,19 +9,33 @@ import wx
 import wx.lib.agw.multidirdialog as mdd
 import wx.grid
 
-# TODO: Change all dlg's to <with --- as dlg> format
-
 
 class CheckpointDialog(wx.Dialog):
+    """
+    (OUTDATED)
+    GUI wx.Dialog for checking if user wants to check the output file between LTE band conversions.
+    """
     def __init__(self, parent, title):
+        """
+        Constructor for the CheckpointDialog class.
+        :param parent: Parent object of the wx.Dialog.
+        :param title: The title of the wx.Dialog (to be shown above the menu bar).
+        """
         super(CheckpointDialog, self).__init__(parent, title=title, size=(250, 150))
         panel = wx.Panel(self)
         self.btn = wx.Button(panel, wx.ID_OK, label="Open Conversion Sheet")
 
 
 class ConversionFrame(wx.Frame):
-    """ Description of class. """
+    """
+    GUI wx.Frame hosting all main GUI elements and conversion scripts.
+    """
     def __init__(self, parent, title):
+        """
+        Initializes a new frame for the EMQuest Conversion Program's GUI.
+        :param parent: Parent object of the frame.
+        :param title: Title of the program, to be displayed above the menu bar.
+        """
         wx.Frame.__init__(self, parent, title=title, size=(1000, 840))
 
         self.dirlist = []  # List of directories with output files of interest
@@ -136,13 +150,22 @@ class ConversionFrame(wx.Frame):
         self.Show(True)
 
     def save(self, e):
-        """ Select directory to save converted files. """
+        """
+        Opens a wx Dialog to select directory to save converted output files.
+        :param e: Event handler.
+        :return: Nothing.
+        """
         with wx.DirDialog(self, "Select directory to save converted files", style=wx.DD_DIR_MUST_EXIST) as dlg:
             if dlg.ShowModal() == wx.ID_OK:
                 self.savetxt.Clear()
                 self.savetxt.WriteText(dlg.GetPath())
 
     def SelectTemplateFile(self, e):
+        """
+        Opens a wx Dialog to select the output conversion template file.
+        :param e: Event handler.
+        :return: Nothing.
+        """
     #    """ Select EMQuest conversion file. """
         with wx.FileDialog(self, "Select EMQuest conversion file", style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as dlg:
             if dlg.ShowModal() == wx.ID_OK:
@@ -150,11 +173,21 @@ class ConversionFrame(wx.Frame):
                 self.templatetxt.SetValue(dlg.GetPath())
 
     def onSingleSelection(self, e):
+        """
+        Registers clicks on the wx.Grid (cells), determines current coordinates (saves them on self.topselect).
+        :param e: Event handler.
+        :return: Nothing.
+        """
         self.topselect = (e.GetRow(), e.GetCol())
         self.bottomselect = self.topselect
         e.Skip()
 
     def onDragSelection(self, e):
+        """
+        Registers drags/multi-cell selections on the wx.Grid (cells), determines the top & bottom cell coordinates.
+        :param e: Event handler.
+        :return: Nothing.
+        """
         self.topselect = self.dirgrid.GetSelectionBlockTopLeft()
         if self.topselect:
             self.topselect = self.topselect[0]
@@ -174,6 +207,11 @@ class ConversionFrame(wx.Frame):
         print("Coords: " + str(self.topselect) + " " + str(self.bottomselect))
 
     def add(self, e):
+        """
+        Adds input file(s) to the list of files to convert.
+        :param e: Event handler.
+        :return: Nothing.
+        """
         with wx.FileDialog(self, "Select EMQuest conversion file(s)", defaultDir='H:\Transfer-SAR-MD\Chang\emquest',
                             style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST | wx.FD_MULTIPLE,
                             wildcard="CSV files (.csv)|*.csv") as dlg:
@@ -184,8 +222,11 @@ class ConversionFrame(wx.Frame):
         self.populatedirlist()
 
     def add_folder(self, e):
-        # TODO: Change to single files instead of directories
-        """ Select directory/ies to open. """
+        """
+        Adds a directory of input file(s) to the list of file(s) to convert.
+        :param e: Event handler.
+        :return: Nothing.
+        """
         with mdd.MultiDirDialog(self, "Choose a directory/directories to open",
                                  defaultPath='H:\Transfer-SAR-MD\Chang\emquest',
                                  agwStyle=mdd.DD_MULTIPLE | mdd.DD_DIR_MUST_EXIST) as dlg:
@@ -199,6 +240,11 @@ class ConversionFrame(wx.Frame):
         self.populatedirlist()
 
     def remove(self, e):
+        """
+        Removes selected files from the list of files to convert.
+        :param e: Event handler.
+        :return: Nothing.
+        """
         if self.topselect is None:
             return
         else:
@@ -215,36 +261,52 @@ class ConversionFrame(wx.Frame):
             return
 
     def clear(self, e):
+        """
+        Clears all files from the list of files to convert. Also clears out the wx.Grid to reflect this.
+        :param e: Event handler.
+        :return: Nothing.
+        """
         self.dirlist = []
         self.dirgrid.ClearGrid()
         pass
 
     def startconversion(self, e):
+        """
+        Starts the thread for the conversion script. Disables the GUI while the thread is running.
+        :param e: Event handler.
+        :return: Nothing.
+        """
         if self.savetxt.GetValue() == '':
             with wx.MessageDialog(self, "No save directory selected.\nPlease select a directory on the top left.",
-                                   style=wx.OK | wx.ICON_WARNING | wx.CENTER) as dlg:
+                                  style=wx.OK | wx.ICON_WARNING | wx.CENTER) as dlg:
                 dlg.ShowModal()
             return
         elif not self.dirlist:
             with wx.MessageDialog(self, "No files selected.\nPlease select file(s) to convert.",
-                                   style=wx.OK | wx.ICON_WARNING | wx.CENTER) as dlg:
+                                  style=wx.OK | wx.ICON_WARNING | wx.CENTER) as dlg:
                 dlg.ShowModal()
             return
         self.disablegui()
         threading.Thread(target=self.runconversion, args=(e,)).start()
 
     def runconversion(self, e):
+        """
+        Converts and compiles the data from the input files into a single excel sheet based on the template file
+        and in the save directory specified.
+        :param e: Event handler.
+        :return: Nothing.
+        """
         self.success = []
         self.failure = []
         if len(self.dirlist) <= 0:
             with wx.MessageDialog(self, "No files selected.\nPlease add directories to the list on the right.",
-                                   style=wx.OK | wx.ICON_ERROR | wx.CENTER) as dlg:
+                                  style=wx.OK | wx.ICON_ERROR | wx.CENTER) as dlg:
                 dlg.ShowModal()
             return
         for file in self.dirlist:
             lteband = file.split('_')[1].split(' ')[0]
             # Open EMQuest Conversion Sheet
-            convsheetfname = 'EMQuest conversion Rev A'
+            # convsheetfname = 'EMQuest conversion Rev A'
             # Check if this is a valid directory
             if not os.path.exists(self.savetxt.GetValue()):
                 self.errormsg("Error: no such save directory exists: '%s'" % self.savetxt.GetValue())
@@ -254,6 +316,7 @@ class ConversionFrame(wx.Frame):
                 self.errormsg("Error: no such template file exists: '%s" % self.templatetxt.GetValue())
                 self.enablegui()
                 return
+
             # Check if export file already exists
             dstfile = self.savetxt.GetValue() + '\\EMQuest conversion Rev A LTE ' + lteband + '.xlsx'
             if not os.path.exists(dstfile):
@@ -339,6 +402,13 @@ class ConversionFrame(wx.Frame):
         self.enablegui()
 
     def runconversion_folder(self, e):
+        """
+        (OUTDATED)
+        Converts and compiles the data from the input files in the specified directories into a single excel sheet
+        based on the template file and in the save directory specified.
+        :param e: Event handler.
+        :return: Nothing.
+        """
         # Convert output files and compile in a copy of the template excel sheet.
         # Get list of files for a specific power LTE band
         if len(self.dirlist) <= 0:
@@ -349,7 +419,7 @@ class ConversionFrame(wx.Frame):
             self.lteband = filedir.split('\\')[-1]
 
             # Open EMQuest Conversion Sheet
-            convsheetfname = 'EMQuest conversion Rev A'
+            # convsheetfname = 'EMQuest conversion Rev A'
             srcfile = 'H:\Transfer-SAR-MD\Chang\emquest\EMQuest conversion Rev A.xlsx'
             dstfile = 'H:\Transfer-SAR-MD\Chang\emquest\EMQuest conversion Rev A ' + self.lteband + '.xlsx'
             shutil.copyfile(self.templatetxt.GetValue(), dstfile)  # Make copy of template file for output conversions
@@ -419,6 +489,10 @@ class ConversionFrame(wx.Frame):
             self.enablegui()
 
     def disablegui(self):
+        """
+        Disables all GUI elements while the conversion thread is running.
+        :return: Nothing.
+        """
         self.runbutton.Enable(False)
         self.perbandcheckbox.Enable(False)
         self.templatetxt.Enable(False)
@@ -430,6 +504,10 @@ class ConversionFrame(wx.Frame):
         self.clearbutton.Enable(False)
 
     def enablegui(self):
+        """
+        Enables all GUI elements while the conversion thread has completed.
+        :return: Nothing.
+        """
         self.perbandcheckbox.Enable(True)
         self.templatetxt.Enable(True)
         self.savetxt.Enable(True)
@@ -441,12 +519,23 @@ class ConversionFrame(wx.Frame):
         self.runbutton.Enable(True)
 
     def showcheckpoint(self, dstfilepath):
+        """
+        (OUTDATED)
+        Opens a wx.Dialog asking if we want to check the output file once all input files for a given band have been
+        completed.
+        :param dstfilepath: The output file's destination path.
+        :return: Nothing.
+        """
         with wx.MessageBox("'" + self.lteband + "'" + " conversion complete.\nCheck power excel sheet?",
                             "Band Checkpoint.", wx.YES_NO | wx.ICON_INFORMATION) as dlg:
             if dlg == wx.YES:
                 os.startfile(dstfilepath)
 
     def populatedirlist(self):
+        """
+        Prints the list of files to convert onto the wx.Grid on the GUI.
+        :return: Nothing.
+        """
         self.dirgrid.ClearGrid()
         for ind, filedir in enumerate(self.dirlist):
             try:
@@ -457,6 +546,11 @@ class ConversionFrame(wx.Frame):
                 #return
 
     def OnExit(self, e):
+        """
+        Function run on GUI exit.
+        :param e: Event handler.
+        :return: Nothing.
+        """
         self.Close(True)
 
     def errormsg(self, errmsg):
