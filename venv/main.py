@@ -9,6 +9,7 @@ import wx
 import wx.lib.agw.multidirdialog as mdd
 import wx.grid
 
+# TODO: We could potentially add checkpoints directly onto the list/wx.Grid itself??
 
 class CheckpointDialog(wx.Dialog):
     """
