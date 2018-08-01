@@ -303,11 +303,19 @@ class ConversionFrame(wx.Frame):
                         startrow = 52
                     elif len(powvals) == 1:
                         startrow = 28
+                    else:
+                        print("Wrong file format - missing or superfluous number of power values.")
+                        self.failure.append(file)
+                        continue
                 else:  # 1% and 50% RB
                     if len(powvals) == 15:
                         startrow = 52
                     elif len(powvals) == 3 or len(powvals) == 6:
                         startrow = 28
+                    else:
+                        print("Wrong file format - missing or superfluous number of power values.")
+                        self.failure.append(file)
+                        continue
                 df.to_excel(xlswriter, sheet_name=sheet_name, header=None, index=False, startcol=startcol,
                             startrow=startrow)
                 xlswriter.save()  # Save the changes onto the excel file
