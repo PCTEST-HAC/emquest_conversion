@@ -61,7 +61,7 @@ Alternatively, you can run the program directly from the Windows command line, b
 
 A basic GUI will appear with a preset template file already loaded.
 
-[TODO: Add image]
+![emquest gui](venv/docs/emquestgui.PNG)
 
 ### Managing the files to be converted
 The program is capable of handling multiple input files at once, creating separate output files for each LTE band (whilst compiling all data from the same LTE band into their respective output files). The input files should be in '.csv' format and loaded onto cells in the **Selected Output Files to Convert** section. This can be done by pressing the **Add** button at the bottom of the file list section.
